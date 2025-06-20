@@ -5,19 +5,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
-@Document(collection = "rooms")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Room {
+@Document(collection = "room_messages")
+public class RoomMessage {
+
     @Id
-    private String id;
+    private String messageId;
+
+    @Indexed
     private String roomId;
-    private String roomOwnerId;
+
+    @Indexed
+    private String senderId;
+
+    private String content;
+
+    private LocalDateTime timeStamp;
+
 }

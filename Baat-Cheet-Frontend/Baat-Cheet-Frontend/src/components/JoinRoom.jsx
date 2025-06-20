@@ -1,29 +1,39 @@
-import React, { useState } from "react";
-import { joinRoomApi } from "../services/ChatRoomService";
+import React, { useEffect, useState } from "react";
+import { joinRoomApi, getAllRoomsSortedByMemberStrength } from "../services/ChatRoomService";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router";
 
 const JoinRoom = () => {
-  const [detail, setDetail] = useState({
-    roomId: "",
-  });
-
+  const [detail, setDetail] = useState({ roomId: "" });
+  const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
-  const { username } = useParams(); // get username from URL
+  const { username } = useParams();
 
-  function handleInputChange(e) {
-    setDetail({
-      ...detail,
-      [e.target.name]: e.target.value,
-    });
-  }
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const data = await getAllRoomsSortedByMemberStrength(0,20);
+        console.log("Fetched rooms : ",data.content);
+        setRooms(data.content);
+      } catch (err) {
+        console.error("Failed to fetch rooms", err);
+        toast.error("Failed to load rooms");
+      }
+    };
 
-  async function handleJoinRoom(e) {
+    fetchRooms();
+  }, []);
+
+  const handleInputChange = (e) => {
+    setDetail({ ...detail, [e.target.name]: e.target.value });
+  };
+
+  const handleJoinRoom = async (e) => {
     e.preventDefault();
     try {
       await joinRoomApi(detail.roomId);
       toast.success("Joined room successfully!");
-      navigate(`/chat/${detail.roomId}/${username}`); // use username from params
+      navigate(`/chat/${detail.roomId}/${username}`);
     } catch (error) {
       if (error.response?.status === 404) {
         toast.error("Room not found");
@@ -32,7 +42,7 @@ const JoinRoom = () => {
         toast.error("An unexpected error occurred");
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -59,6 +69,27 @@ const JoinRoom = () => {
             Join Room
           </button>
         </form>
+
+        {/* Room List */}
+        {rooms.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold text-center mb-2">Available Rooms</h2>
+            <ul className="space-y-2 max-h-60 overflow-auto">
+              {rooms.map((room) => (
+                <li
+                  key={room.roomId}
+                  className="bg-gray-700 p-3 rounded-lg cursor-pointer hover:bg-gray-600"
+                  onClick={() => setDetail({ roomId: room.roomId })}
+                >
+                  <div className="flex justify-between">
+                    <span className="font-medium">{room.roomId}</span>
+                    <span className="text-sm text-gray-300">Members: {room.memberCount}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

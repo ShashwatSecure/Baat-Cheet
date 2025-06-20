@@ -11,5 +11,5 @@ createRoot(document.getElementById('root')).render(
       <Toaster />
       <AppRoutes />
     </BrowserRouter>
-  </StrictMode>,
+   </StrictMode>,
 )

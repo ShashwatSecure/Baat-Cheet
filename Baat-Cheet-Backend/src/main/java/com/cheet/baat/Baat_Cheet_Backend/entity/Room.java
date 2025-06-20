@@ -17,7 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Room {
     @Id
-    private String id;
     private String roomId;
-    private String roomOwnerId;
+    private String roomName;
+    private String ownerUsername;
+    private int memberCount;
 }

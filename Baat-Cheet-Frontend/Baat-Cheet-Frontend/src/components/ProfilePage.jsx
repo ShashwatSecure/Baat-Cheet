@@ -1,25 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import {jwtDecode} from "jwt-decode";
+import { useNavigate, useParams } from "react-router";
+import { jwtDecode } from "jwt-decode";
 import UserHeader from "../components/UserHeader";
 
 const ProfilePage = () => {
   const [selectedTab, setSelectedTab] = useState("individual");
-  const [username, setUsername] = useState("");
+  const [usernameFromToken, setUsernameFromToken] = useState("");
+  const { username: usernameFromURL } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setUsername(decoded.username || "");
-      } catch (error) {
-        console.error("Invalid token", error);
-        setUsername("");
-      }
+    if (!token) {
+      navigate("/"); // Not logged in
+      return;
     }
-  }, []);
+
+    try {
+      const decoded = jwtDecode(token);
+      const tokenUsername = decoded.username;
+      setUsernameFromToken(tokenUsername);
+
+      if (tokenUsername !== usernameFromURL) {
+        navigate("/"); // Username mismatch — not authorized
+      }
+    } catch (error) {
+      console.error("Invalid token", error);
+      navigate("/"); // Redirect if decoding fails
+    }
+  }, [usernameFromURL, navigate]);
 
   const renderActionButtons = () => {
     if (selectedTab === "individual") {
@@ -33,13 +42,13 @@ const ProfilePage = () => {
         <div className="flex gap-3">
           <button
             className="bg-purple-600 hover:bg-purple-700 transition-colors px-4 py-2 rounded-xl font-medium shadow-md"
-            onClick={() => navigate(`/${username}/create-room`)}
+            onClick={() => navigate(`/${usernameFromToken}/create-room`)}
           >
             Create Room
           </button>
           <button
             className="bg-blue-600 hover:bg-blue-700 transition-colors px-4 py-2 rounded-xl font-medium shadow-md"
-            onClick={() => navigate(`/${username}/join-room`)}
+            onClick={() => navigate(`/${usernameFromToken}/join-room`)}
           >
             Join Room
           </button>

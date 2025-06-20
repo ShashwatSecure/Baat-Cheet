@@ -24,7 +24,7 @@ public class RoomMessage {
     private String roomId;
 
     @Indexed
-    private String senderId;
+    private String senderUsername;
 
     private String content;
 

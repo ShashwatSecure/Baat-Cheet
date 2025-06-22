@@ -6,8 +6,9 @@ export const createRoomApi = async (roomId) => {
     return response.data;
 };
 
-export const joinRoomApi = async (roomId) => {
-    const response = await httpClient.post(`http://localhost:8080/api/v1/rooms/${roomId}`);
+export const joinRoomApi = async (roomId,username) => {
+    const response = await httpClient.post(`http://localhost:8080/api/v1/rooms/${roomId}?username=${username}`);
+    console.log(response)
     return response.data;
 }
 

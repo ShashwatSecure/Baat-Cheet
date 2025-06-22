@@ -42,7 +42,6 @@ public class UserService {
             }
         }
 
-        // Add some random suffix-based suggestions
         while (suggestions.size() < 5) {
             String suggestion = baseUsername + random.nextInt(1000);
             if (!userRepository.existsByUsername(suggestion)) {

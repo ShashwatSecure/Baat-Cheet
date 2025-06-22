@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,13 +24,13 @@ public class RoomController {
     private RoomMessageService roomMessageService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createRoom(@RequestParam String roomId) {
+    public ResponseEntity<?> createRoom(@RequestParam String roomId,@RequestParam String username) {
         if (roomService.findRoomByRoomId(roomId).isPresent())
             return ResponseEntity.badRequest().body(
                     Map.of("message", "Room already exists!")
             );
 
-        Optional<Room> room = roomService.createRoom(roomId);
+        Optional<Room> room = roomService.createRoom(roomId,username);
         if (room.isPresent())
             return ResponseEntity.ok(
                     Map.of("message", "Room created successfully!", "room", room.get())
@@ -43,25 +42,26 @@ public class RoomController {
     }
 
     @PostMapping("/{roomId}")
-    public ResponseEntity<?> joinRoom(@PathVariable String roomId)
+    public ResponseEntity<?> joinRoom(@PathVariable String roomId,@RequestParam("username") String username)
     {
-        Optional<Room> room = roomService.findRoomByRoomId(roomId);
-        if(room.isPresent())
-        {
-            return ResponseEntity.ok("Room joined!");
-        }
-        else
-        {
-            System.out.println("Room not found!");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Room not found!");
-        }
+        Room room  = roomService.joinRoom(roomId,username);
+        if(room!=null)
+            return ResponseEntity.ok().body(room);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Room not found!");
     }
 
     @GetMapping("/all")
     public ResponseEntity<Page<Room>> getAllRooms(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "20") int size)
     {
         Page<Room> rooms = roomService.getAllRooms(page,size);
-        System.out.println(rooms);
         return ResponseEntity.ok().body(rooms);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteRoom(@RequestParam String roomId)
+    {
+        if(roomService.deleteRoom(roomId))  return ResponseEntity.ok().body("Room deleted successfully!");
+        else
+            return ResponseEntity.notFound().build();
     }
 }

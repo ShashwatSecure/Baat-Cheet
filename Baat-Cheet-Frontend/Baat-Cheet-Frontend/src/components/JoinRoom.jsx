@@ -31,7 +31,7 @@ const JoinRoom = () => {
   const handleJoinRoom = async (e) => {
     e.preventDefault();
     try {
-      await joinRoomApi(detail.roomId);
+      await joinRoomApi(detail.roomId,username);
       toast.success("Joined room successfully!");
       navigate(`/chat/${detail.roomId}/${username}`);
     } catch (error) {

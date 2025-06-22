@@ -7,4 +7,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface RoomMessageRepository extends MongoRepository<RoomMessage, String> {
     Page<RoomMessage> findByRoomIdOrderByTimeStampDesc(String roomId, Pageable pageable);
+    void deleteByRoomId(String roomId);
 }
